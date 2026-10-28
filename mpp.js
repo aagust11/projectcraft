@@ -15,6 +15,7 @@ function importMppModel(model){
  return {project:p,warnings};
 }
 function exportMppModel(){
+ if(project.tasks.some(t=>t.parentId))throw Error('L’exportació MPP de projectes amb subtasques encara no està implementada. Desa el projecte en JSON per conservar la jerarquia.');
  ensureResources();const schedule=calculate(),types={FC:'FS',CC:'SS',FF:'FF',CF:'SF'},resources=project.resources.filter(r=>r.type==='work');
  return {title:project.name,start:new Date(projectStart()+'T08:00:00Z'),currencySymbol:'€',currencyCode:'EUR',author:'ProjectCraft',calendar:{name:'Standard',week:{0:[[480,720],[780,1020]],1:[[480,720],[780,1020]],2:[[480,720],[780,1020]],3:[[480,720],[780,1020]],4:[[480,720],[780,1020]],5:null,6:null},exceptions:project.holidays.map(d=>({start:date(d),finish:date(d),name:'Festiu'}))},tasks:project.tasks.map((t,i)=>({uid:t.uid,name:t.name,start:new Date(schedule[i].start+'T08:00:00Z'),finish:new Date(schedule[i].end+(t.duration===0?'T08:00:00Z':'T17:00:00Z')),durationDays:Number(t.duration),percentComplete:Number(t.progress)||0,outlineLevel:1,parentUid:0})),relations:project.tasks.flatMap((t,i)=>parseDeps(t,i).map(d=>({predUid:project.tasks[d.p].uid,succUid:t.uid,type:types[d.type],lagDays:d.lag}))),resources:resources.map(r=>({uid:r.uid,name:r.name,email:r.email,maxUnits:r.maxUnits/100})),assignments:project.tasks.flatMap(t=>(t.assignments||[]).filter(a=>resources.some(r=>r.id===a.resourceId)).map(a=>({taskUid:t.uid,resourceUid:resources.find(r=>r.id===a.resourceId).uid,units:a.units/100})))};
 }

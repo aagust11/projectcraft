@@ -105,6 +105,34 @@ const path = require('node:path');
   const downloadPromise=page.waitForEvent('download');await page.locator('#buildMpp').click();const download=await downloadPromise;
   const data=require('node:fs').readFileSync(await download.path());assert.deepEqual([...data.slice(0,8)],[208,207,17,224,161,177,26,225]);
   const {readProject}=await import('mppwriter');assert.equal(readProject(new Uint8Array(data)).tasks[0].name,'Task #1');
+  // A separate project exercises outline operations, recalculation and persistence.
+  await page.locator('#cancelMppExport').click();await page.locator('#newProject').click();
+  await page.locator('[data-menu="task"]').click();
+  async function addTask(name,start,duration,progress){await page.locator('#add').click();await page.locator('#taskName').fill(name);await page.locator('#taskStart').fill(start);await page.locator('#taskStart').dispatchEvent('change');await page.locator('#taskDuration').fill(String(duration));await page.locator('#taskDuration').dispatchEvent('change');await page.locator('#taskProgress').fill(String(progress));await page.locator('#taskForm button[type="submit"]').click()}
+  await addTask('Fase','2027-01-04',1,0);await addTask('Disseny','2027-01-04',2,100);await addTask('Prova','2027-01-07',1,0);
+  await page.locator('.view-switch [data-view="grid"]').click();
+  await page.locator('[data-indent="1"]').click();await page.locator('[data-indent="2"]').click();
+  assert.equal(await page.locator('.summary-row').count(),1);
+  assert.equal(await page.evaluate(()=>result[0].progress),67);
+  assert.equal(await page.evaluate(()=>result[0].end),'2027-01-07');
+  assert.deepEqual(await page.evaluate(()=>hierarchy().wbs),['1','1.1','1.2']);
+  await page.locator('[data-edit="0"]').click();assert.ok(await page.locator('#summaryHelp').isVisible());assert.ok(await page.locator('#taskDuration').isDisabled());await page.locator('#cancelTask').click();
+  await page.locator('[data-collapse="0"]').click();assert.equal(await page.locator('#rows tr').count(),1);
+  await page.locator('#search').fill('Prova');assert.equal(await page.locator('#rows tr').count(),1);
+  await page.locator('#search').fill('');assert.equal(await page.locator('#rows tr').count(),1);
+  await page.locator('[data-collapse="0"]').click();assert.equal(await page.locator('#rows tr').count(),3);
+  await page.locator('#rows [data-i="2"][data-k="deps"]').fill('2FC');await page.locator('#rows [data-i="2"][data-k="deps"]').dispatchEvent('change');
+  await page.locator('[data-outdent="1"]').click();
+  assert.deepEqual(await page.evaluate(()=>project.tasks.map(t=>t.name)),['Fase','Prova','Disseny']);
+  assert.equal(await page.locator('#rows [data-i="1"][data-k="deps"]').inputValue(),'3FC');
+  assert.match(await page.locator('#status').innerText(),/Ruta crítica no disponible/);
+  await page.reload();await page.locator('.view-switch [data-view="grid"]').click();
+  assert.deepEqual(await page.evaluate(()=>project.tasks.map(t=>t.name)),['Fase','Prova','Disseny']);
+  assert.deepEqual(await page.evaluate(()=>hierarchy().wbs),['1','1.1','2']);
+  await page.locator('[data-menu="file"]').click();await page.locator('#exportMpp').click();
+  await page.locator('#mppTemplate').setInputFiles(path.join(require('node:os').tmpdir(),'projectcraft-fixtures','mpp14relations.mpp'));
+  await page.locator('#buildMpp').click();await page.waitForFunction(()=>document.querySelector('#mppExportError').textContent.includes('subtasques'));
+  await page.locator('#cancelMppExport').click();
   assert.deepEqual(errors,[]);
   console.log('UI passed: project dates, task finish, menus, grid, board, filtering, invalid input rollback, responsive Gantt and persistence');
  } finally {await browser.close()}

@@ -9,6 +9,7 @@ La font completa de requisits aportada per l’usuari es conserva sense omission
 | Columnes | Ajust al contingut, arrossegament, doble clic per autoajust, teclat i amplades desades per projecte/vista | Ocultar, fixar i reordenar columnes arbitràriament |
 | IDs | Número de fila automàtic, UUID intern estable i UID numèric automàtic per a intercanvi | Migrar les dependències natives de text/número de fila a referències internes estables |
 | Recursos | Catàleg de treball, materials i costos; noms, grups, correus, tarifes, capacitats | Calendaris individuals, disponibilitat variable, hores extres |
+| Tasques i subtasques | Jerarquia amb identificadors estables, sagnat i anul·lació, resums amb dates, progrés i costos agregats, codis EDT i plegat | Les tasques resum no admeten predecessors ni recursos propis; la ruta crítica encara no funciona amb jerarquies |
 | Assignacions | Diversos recursos per tasca, dedicació %, quantitats o imports segons tipus | Distribució temporal, treball real i calendari per assignació |
 | Costos | Cost fix més recursos; treball = durada × 8 h × dedicació × tarifa | Cost real, desviacions, precisió decimal monetària avançada, EVM |
 | Càrrega | Detecció diària de sobreassignacions respecte a capacitat % | No modifica dates ni fa anivellament; jornada assumida de 8 hores |
@@ -24,7 +25,7 @@ La font completa de requisits aportada per l’usuari es conserva sense omission
 - Recursos de treball, assignacions i dependències es mapen als models locals. El model llegit original queda al JSON com a `mppSource`; aquest snapshot no és una garantia que tots els fluxos binaris originals s’hagin conservat.
 - La jerarquia, calendaris particulars, restriccions, camps personalitzats i altres dades avançades no governen encara el motor local. Costos i dades distribuïdes en el temps no són retornats pel lector utilitzat. No es pot prometre una importació sense pèrdues.
 - L’exportació exigeix una plantilla MPP14 pròpia amb registres de tasca, resum, subtasca i dependència. No es distribueix una plantilla de Microsoft.
-- L’exportació reprodueix el subconjunt implementat: tasques planes, dates, durades, progrés, dependències, recursos de treball i assignacions. No exporta recursos materials/de cost, costos, línies base ni els camps avançats originals.
+- L’exportació rebutja expressament els projectes amb subtasques fins que se’n pugui validar la jerarquia. Reprodueix el subconjunt implementat: tasques planes, dates, durades, progrés, dependències, recursos de treball i assignacions. No exporta recursos materials/de cost, costos, línies base ni els camps avançats originals.
 - Abans de descarregar, el fitxer generat es torna a llegir amb el mateix lector i se’n contrasten tasques, dates, durades i dependències. Això detecta errors interns, però **no substitueix una prova en Microsoft Project**.
 - El format JSON continua sent la còpia completa recomanada de les dades de ProjectCraft.
 
@@ -32,7 +33,7 @@ Font del conversor i límits: <https://github.com/kevinmcaleer/pymppwriter/tree/
 
 ## Prioritats següents
 
-1. Dependències per identificadors estables, subtasques i resums.
+1. Dependències per identificadors estables i suport complet de dependències sobre tasques resum.
 2. XML MSPDI amb contracte de camps, previsualització i proves d’anada i tornada.
 3. Calendaris i jornada configurables; ruta crítica per totes les relacions.
 4. Validació externa dels MPP importats i exportats amb Project 2010/M365 i fitxers reals.
