@@ -116,7 +116,7 @@ const path = require('node:path');
   assert.equal(await page.evaluate(()=>result[0].progress),67);
   assert.equal(await page.evaluate(()=>result[0].end),'2027-01-07');
   assert.deepEqual(await page.evaluate(()=>hierarchy().wbs),['1','1.1','1.2']);
-  await page.locator('[data-edit="0"]').click();assert.ok(await page.locator('#summaryHelp').isVisible());assert.ok(await page.locator('#taskDuration').isDisabled());await page.locator('#cancelTask').click();
+  await page.locator('#rows [data-edit="0"]').click();assert.ok(await page.locator('#summaryHelp').isVisible());assert.ok(await page.locator('#taskDuration').isDisabled());await page.locator('#cancelTask').click();
   await page.locator('[data-collapse="0"]').click();assert.equal(await page.locator('#rows tr').count(),1);
   await page.locator('#search').fill('Prova');assert.equal(await page.locator('#rows tr').count(),1);
   await page.locator('#search').fill('');assert.equal(await page.locator('#rows tr').count(),1);
