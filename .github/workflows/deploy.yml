@@ -19,8 +19,10 @@ jobs:
         with:
           node-version: '22'
       - run: node --check app.js
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: npm run test:fixtures
       - run: node --test tests/*.test.js
-      - run: npm install --ignore-scripts --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
   deploy:
@@ -32,7 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      - run: mkdir -p _site && cp index.html styles.css app.js _site/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: mkdir -p _site && cp index.html styles.css app.js resources.js columns.js mpp.js mpp.bundle.js THIRD_PARTY_NOTICES.md _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
