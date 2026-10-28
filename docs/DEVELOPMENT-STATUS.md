@@ -10,9 +10,9 @@ La font completa de requisits aportada per l’usuari es conserva sense omission
 | IDs | Número de fila automàtic, UUID intern estable i UID numèric automàtic per a intercanvi | Migrar les dependències natives de text/número de fila a referències internes estables |
 | Recursos | Catàleg de treball, materials i costos; noms, grups, correus, tarifes, capacitats | Calendaris individuals, disponibilitat variable, hores extres |
 | Tasques i subtasques | Jerarquia amb identificadors estables, sagnat i anul·lació, resums amb dates, progrés i costos agregats, codis EDT i plegat | Les tasques resum no admeten predecessors ni recursos propis; la ruta crítica encara no funciona amb jerarquies |
-| Assignacions | Diversos recursos per tasca, dedicació %, quantitats o imports segons tipus | Distribució temporal, treball real i calendari per assignació |
+| Assignacions | Diversos recursos per tasca, dedicació en % o hores setmanals sobre una setmana de 40 h; quantitats o imports segons tipus | Distribució temporal, treball real i calendari per assignació |
 | Costos | Cost fix més recursos; treball = durada × 8 h × dedicació × tarifa | Cost real, desviacions, precisió decimal monetària avançada, EVM |
-| Càrrega | Detecció diària de sobreassignacions respecte a capacitat % | No modifica dates ni fa anivellament; jornada assumida de 8 hores |
+| Càrrega | Detecció diària de sobreassignacions i detall de càrrega setmanal, amb capacitat en % o h/setmana | No modifica dates ni fa anivellament; jornada assumida de 8 hores |
 | MPP14 | Lector/escriptor local experimental amb `mppwriter` 0.4.3, previsualització i projecte nou; exportació amb plantilla aportada per l’usuari | No equival a compatibilitat completa amb Microsoft Project. Proves amb dues mostres MPP14 independents de MPXJ i anada/tornada binària. Pendent validació oberta en versions de Microsoft Project |
 | Documentació | Text íntegre registrat en Markdown i estat separat | Desglossar cada requisit ampli en incidències amb proves pròpies |
 
@@ -42,3 +42,7 @@ Font del conversor i límits: <https://github.com/kevinmcaleer/pymppwriter/tree/
 ## Mostres de prova externes
 
 Les proves descarreguen temporalment `mpp14task.mpp` i `mpp14relations.mpp` del projecte [MPXJ](https://github.com/joniles/mpxj/tree/e043353984c092034295880b336f46d6e8800285/junit/data), amb commit fix i SHA-256 comprovats. No es distribueixen dins del web. Es valida la lectura nativa, el mapatge local i una exportació binària amb tasques, dependències, recursos i assignacions rellegida pel mateix conversor. Això continua sense provar que totes les versions de Microsoft Project acceptin tots els projectes exportats.
+
+## Dedicació en percentatge o hores setmanals
+
+Les assignacions i la capacitat dels recursos de treball accepten % o h/setmana. S’utilitza la mateixa referència per a tothom: **100% = 40 h/setmana = 8 h/dia durant cinc dies laborables**. Per exemple, 20 h/setmana equivalen a 50%. Les hores es distribueixen uniformement entre els dies laborables en què la tasca està planificada. Si hi ha festius o la tasca dura només una part de la setmana, les hores efectives d’aquella setmana baixen; no es concentren automàticament. La capacitat del detall setmanal també descompta els festius del calendari del projecte. Encara no hi ha horaris, jornades variables ni calendaris individuals per recurs.

@@ -8,3 +8,5 @@
 .summary-row{font-weight:700;background:#f4f8f5}.summary-row input[data-k=name]{font-weight:700}.outline-action,.outline-toggle{border:0;background:transparent;padding:3px;flex:none;color:#286d50}.outline-action{font-size:14px}.outline-toggle{font-size:12px}.task-name-cell input{width:0}.bar.summary-bar{background:#304b3d;height:9px;top:11px;border-radius:0;overflow:visible}.bar.summary-bar .bar-text,.bar.summary-bar .bar-progress{display:none}.bar.summary-bar:before,.bar.summary-bar:after{content:"";position:absolute;top:8px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #304b3d}.bar.summary-bar:before{left:0}.bar.summary-bar:after{right:0}
 
 .outline-wbs{font-size:10px;color:#687e70;white-space:nowrap;flex:none}
+
+.assignment-row{grid-template-columns:minmax(120px,1fr) 90px 110px auto 32px}.assignment-row .assignment-equivalence{grid-column:1/-1;margin-top:-3px}.assignment-mode{min-width:105px}.assignment-unit:empty{display:none}@media(max-width:520px){.assignment-row{grid-template-columns:minmax(90px,1fr) 72px 100px 30px;gap:4px}.assignment-row .assignment-unit{grid-column:auto}.assignment-mode{min-width:0}}
