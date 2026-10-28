@@ -29,6 +29,7 @@ function criticalPath(schedule){
  return schedule.map((entry,i)=>{let cur=entry.start,slack=0;while(cur<late[i]){cur=move(cur,1);slack++;if(slack>100000)throw Error('Projecte massa extens per calcular els marges.')}return {latestStart:late[i],slack,critical:slack===0}});
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(all));$('#saved').textContent='Desat al navegador'}catch(e){$('#saved').textContent='Error en desar: descarrega una còpia JSON';}}
+let rendering=false,pendingRender=false;
 let activeView='gantt',activeMenu='task',query='',taskFilter='all',zoom='fit',visibleIndices=[];
 function validDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(date(s))&&iso(date(s))===s}
 function projectStart(){return project.start||project.tasks.map(t=>t.start).filter(validDate).sort()[0]||iso(new Date())}
@@ -62,6 +63,7 @@ function renderBoard(){
 }
 function setView(view){activeView=view;$('.workspace').dataset.view=view;$('.workspace').hidden=view==='board';$('#board').hidden=view!=='board';$('#zoomLabel').hidden=view!=='gantt';document.querySelectorAll('[data-view]').forEach(b=>{if(b.tagName==='BUTTON')b.setAttribute('aria-pressed',String(b.dataset.view===view))});$('#viewHint').textContent={gantt:'Gantt sincronitzat amb les files. Clica una barra o el llapis per editar.',grid:'Graella editable: modifica les cel·les o obre la fitxa amb el llapis.',board:'Tasques agrupades segons el percentatge d’avanç.'}[view];renderChart();renderBoard()}
 function render(){
+ if(rendering){pendingRender=true;return}rendering=true;try{
  let err='';try{result=calculate();critical=criticalPath(result)}catch(e){result=[];critical=[];err=e.message}
  $('#error').textContent=err;$('#projectName').value=project.name;$('#projects').innerHTML=all.map(p=>`<option value="${esc(p.id)}" ${p===project?'selected':''}>${esc(p.name)}</option>`).join('');
  visibleIndices=project.tasks.map((_,i)=>i).filter(i=>taskVisible(project.tasks[i],i));
@@ -72,6 +74,7 @@ function render(){
  const late=project.finish&&end&&end>project.finish;$('#deadlineStatus').className=late?'deadline-warning':'';$('#deadlineStatus').textContent=end?`Final calculat: ${end}${late?' · ⚠ Supera el termini previst':''}`:'Sense tasques planificades';
  $('#status').textContent=`${visibleIndices.length}/${project.tasks.length} tasques · ${critical===null?'Ruta crítica disponible només amb FC':'Vermell: tasques crítiques (FC)'} · Cost estimat: ${project.tasks.reduce((a,t)=>a+(Number(t.cost)||0),0).toLocaleString('ca-ES',{style:'currency',currency:'EUR'})} · Les dades són locals`;
  renderChart();renderBoard();save();
+ }finally{rendering=false;if(pendingRender){pendingRender=false;queueMicrotask(render)}}
 }
 $('#rows').addEventListener('change',e=>{const el=e.target;if(!el.dataset.k)return;const t=project.tasks[+el.dataset.i],k=el.dataset.k,old=t[k];let value=el.value;if(['progress','cost','duration'].includes(k)){value=Number(value);if(!Number.isFinite(value)||value<0||(k==='progress'&&value>100)||(k==='duration'&&(!Number.isInteger(value)||value>10000))){alert('Introdueix un valor vàlid.');render();return}}if(k==='name'&&!value.trim()){alert('La tasca ha de tenir un nom.');render();return}t[k]=value;try{calculate()}catch(err){t[k]=old;alert(err.message)}render()});$('#rows').addEventListener('click',e=>{let edit=e.target.dataset.edit;if(edit!==undefined){openTask(+edit);return}let x=e.target.dataset.delete;if(x===undefined)return;if(!confirm('Eliminar la tasca? Els predecessors es renumeraran.'))return;let n=+x;project.tasks.splice(n,1);for(const t of project.tasks){t.deps=t.deps.split(',').map(s=>s.trim()).filter(Boolean).filter(s=>parseInt(s)!==n+1).map(s=>s.replace(/^\d+/,v=>+v>n+1?+v-1:v)).join(', ')}render()});
 let editingTask=null,taskTrigger=null;
