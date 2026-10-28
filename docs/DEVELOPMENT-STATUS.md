@@ -7,7 +7,8 @@ La font completa de requisits aportada per l’usuari es conserva sense omission
 | Àrea | Estat d’aquesta entrega | Límits pendents |
 | --- | --- | --- |
 | Columnes | Ajust al contingut, arrossegament, doble clic per autoajust, teclat i amplades desades per projecte/vista | Ocultar, fixar i reordenar columnes arbitràriament |
-| IDs | Número de fila automàtic, UUID intern estable i UID numèric automàtic per a intercanvi | Migrar les dependències natives de text/número de fila a referències internes estables |
+| IDs | Número de fila automàtic, UUID intern estable i UID numèric automàtic per a intercanvi; dependències referenciades amb l’UUID | Ampliar la compatibilitat amb restriccions i predecessors de tasques resum |
+| Desfer i refer | Historial de canvis de dades independent per projecte, només durant la sessió; recupera tasques, jerarquies, dependències, recursos, calendari i línia base | L’historial no sobreviu a la recàrrega i no recupera projectes eliminats |
 | Recursos | Catàleg de treball, materials i costos; noms, grups, correus, tarifes, capacitats | Calendaris individuals, disponibilitat variable, hores extres |
 | Tasques i subtasques | Jerarquia amb identificadors estables, sagnat i anul·lació, resums amb dates, progrés i costos agregats, codis EDT i plegat | Les tasques resum no admeten predecessors ni recursos propis; la ruta crítica encara no funciona amb jerarquies |
 | Assignacions | Diversos recursos per tasca, dedicació en % o hores setmanals sobre una setmana de 40 h; quantitats o imports segons tipus | Distribució temporal, treball real i calendari per assignació |
@@ -33,7 +34,7 @@ Font del conversor i límits: <https://github.com/kevinmcaleer/pymppwriter/tree/
 
 ## Prioritats següents
 
-1. Dependències per identificadors estables i suport complet de dependències sobre tasques resum.
+1. Suport complet de dependències sobre tasques resum i migracions de dades addicionals.
 2. XML MSPDI amb contracte de camps, previsualització i proves d’anada i tornada.
 3. Calendaris i jornada configurables; ruta crítica per totes les relacions.
 4. Validació externa dels MPP importats i exportats amb Project 2010/M365 i fitxers reals.
@@ -46,3 +47,9 @@ Les proves descarreguen temporalment `mpp14task.mpp` i `mpp14relations.mpp` del 
 ## Dedicació en percentatge o hores setmanals
 
 Les assignacions i la capacitat dels recursos de treball accepten % o h/setmana. S’utilitza la mateixa referència per a tothom: **100% = 40 h/setmana = 8 h/dia durant cinc dies laborables**. Per exemple, 20 h/setmana equivalen a 50%. Les hores es distribueixen uniformement entre els dies laborables en què la tasca està planificada. Si hi ha festius o la tasca dura només una part de la setmana, les hores efectives d’aquella setmana baixen; no es concentren automàticament. La capacitat del detall setmanal també descompta els festius del calendari del projecte. Encara no hi ha horaris, jornades variables ni calendaris individuals per recurs.
+
+## Dependències i historial
+
+Les dependències es guarden amb `dependencyLinks` i l’identificador estable de la predecessora. La propietat `deps` continua sent la representació de números de fila per a la interfície i la compatibilitat; es recalcula quan canvia l’ordre. Els projectes i JSON antics es migren en obrir-los, sense canviar les relacions. Si una referència antiga és invàlida, es manté el text per poder-lo corregir. Els fitxers JSON nous duen `version: 2`; encara s’accepten fitxers de versió 1.
+
+Desfer i refer guarda fins a 40 estats recents per projecte en memòria, amb un límit de mida; un nou canvi després de desfer descarta la branca de refets. Els ajustos de vista i les amplades de columna no formen part de l’historial. L’historial no es conserva en recarregar ni es pot utilitzar per recuperar un projecte eliminat. Les còpies JSON continuen sent necessàries.
